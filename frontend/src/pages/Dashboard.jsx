@@ -1,133 +1,119 @@
 import { useEffect, useState } from "react";
 import API from "../services/api";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const [tasks, setTasks] = useState([]);
   const [title, setTitle] = useState("");
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("all");
+  const navigate = useNavigate();
 
   const fetchTasks = async () => {
-    try {
-      const res = await API.get("/tasks");
-      setTasks(res.data);
-    } catch (err) {
-      console.log(err);
-    }
+    const res = await API.get("/tasks", {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
+    setTasks(res.data);
   };
 
   useEffect(() => {
     fetchTasks();
   }, []);
 
-  const addTask = async () => {
-    if (!title.trim()) return;
+  const addTask = async (e) => {
+    e.preventDefault();
+    if (!title) return;
 
-    await API.post("/tasks", { title });
+    await API.post(
+      "/tasks",
+      { title },
+      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+    );
+
     setTitle("");
     fetchTasks();
   };
 
   const deleteTask = async (id) => {
-    await API.delete(`/tasks/${id}`);
-    fetchTasks();
-  };
-
-  const toggleStatus = async (task) => {
-    await API.put(`/tasks/${task._id}`, {
-      status: task.status === "pending" ? "completed" : "pending"
+    await API.delete(`/tasks/${id}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     });
     fetchTasks();
   };
 
   const logout = () => {
     localStorage.removeItem("token");
-    window.location.href = "/login";
+    navigate("/login");
   };
 
-  const filteredTasks = tasks
-    .filter(task =>
-      task.title.toLowerCase().includes(search.toLowerCase())
-    )
-    .filter(task =>
-      filter === "all" ? true : task.status === filter
-    );
-
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-3xl mx-auto bg-white shadow-md p-6 rounded">
+ <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-black text-white">
 
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold">Task Dashboard</h1>
-          <button
-            onClick={logout}
-            className="bg-red-500 text-white px-4 py-1 rounded"
-          >
-            Logout
-          </button>
-        </div>
 
-        {/* Add Task */}
-        <div className="flex gap-2 mb-4">
-          <input
-            className="border p-2 flex-1 rounded"
-            placeholder="Add new task..."
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-          <button
-            onClick={addTask}
-            className="bg-blue-500 text-white px-4 rounded"
-          >
-            Add
-          </button>
-        </div>
+      
+      {/* Navbar */}
+    <div className="bg-white/5 backdrop-blur-xl border-b border-white/10 p-4 flex justify-between items-center">
 
-        {/* Search + Filter */}
-        <div className="flex gap-2 mb-4">
-          <input
-            className="border p-2 flex-1 rounded"
-            placeholder="Search..."
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <select
-            className="border p-2 rounded"
-            onChange={(e) => setFilter(e.target.value)}
-          >
-            <option value="all">All</option>
-            <option value="pending">Pending</option>
-            <option value="completed">Completed</option>
-          </select>
-        </div>
+        <h1 className="text-2xl font-bold text-indigo-600">Task Manager</h1>
+       <button
+  onClick={logout}
+  className="bg-red-500/80 hover:bg-red-600 px-4 py-2 rounded-lg transition"
+>
+  Logout
+</button>
+      </div>
 
-        {/* Task List */}
-        <ul>
-          {filteredTasks.map(task => (
-            <li
-              key={task._id}
-              className="border p-3 mb-2 rounded flex justify-between items-center"
+      <div className="max-w-5xl mx-auto p-6">
+        
+        {/* Add Task Card */}
+      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 mb-8 shadow-xl">
+
+          <h2 className="text-xl font-semibold mb-4">Add New Task</h2>
+          <form onSubmit={addTask} className="flex gap-4">
+            <input
+              type="text"
+              placeholder="Enter task title..."
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+             className="flex-1 p-3 rounded-lg bg-white/10 border border-white/10 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+
+            />
+            <button
+              type="submit"
+            className="bg-indigo-600 hover:bg-indigo-700 px-6 py-3 rounded-lg transition"
+
             >
-              <span
-                className={`cursor-pointer ${
-                  task.status === "completed"
-                    ? "line-through text-gray-500"
-                    : ""
-                }`}
-                onClick={() => toggleStatus(task)}
-              >
-                {task.title}
-              </span>
+              Add
+            </button>
+          </form>
+        </div>
 
-              <button
-                onClick={() => deleteTask(task._id)}
-                className="text-red-500"
-              >
-                Delete
-              </button>
-            </li>
-          ))}
-        </ul>
+        {/* Task Grid */}
+        <div className="bg-white/5 backdrop-blur-lg border border-white/10 p-5 rounded-2xl shadow-lg hover:shadow-indigo-500/20 hover:scale-[1.02] transition"
+>
+          {tasks.length === 0 ? (
+            <p className="text-gray-500">No tasks yet...</p>
+          ) : (
+            tasks.map((task) => (
+              <div
+                key={task._id}
+               className="bg-white/5 backdrop-blur-lg border border-white/10 p-5 rounded-2xl shadow-lg hover:shadow-indigo-500/20 hover:scale-[1.02] transition"
 
+              >
+                <h3 className="text-lg font-semibold text-gray-200 mb-3"
+>
+                  {task.title}
+                </h3>
+
+                <button
+                  onClick={() => deleteTask(task._id)}
+                  className="text-sm bg-red-500/80 hover:bg-red-600 px-3 py-1 rounded transition"
+
+                >
+                  Delete
+                </button>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
