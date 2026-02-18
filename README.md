@@ -1,3 +1,5 @@
+<img width="1207" height="583" alt="image" src="https://github.com/user-attachments/assets/f281ca4c-66c1-415b-9b64-2f757ffc03fe" />
+
 # 🚀 Task Manager App
 
 A full-stack Task Management application built with the MERN stack.
