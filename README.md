@@ -22,6 +22,7 @@ Backend:
 ---
 
 ## ✨ Features
+<img width="1365" height="424" alt="image" src="https://github.com/user-attachments/assets/683b175d-373e-4ab2-8e19-2dc7bb42a385" />
 
 - User Registration & Login
 - JWT Authentication
