@@ -69,12 +69,8 @@ Database hosted on MongoDB Atlas
 
 ---
 
-## 📸 Demo
 
-Live URL: (add after deployment)
-
----
 
 ## 👨‍💻 Author
 
-Your Name
+  Ayush kumar
